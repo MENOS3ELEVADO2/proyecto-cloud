@@ -1,38 +1,121 @@
-.App {
-  text-align: center;
+:root {
+  --bg-dark: #0b0f19;
+  --bg-sidebar: #111827;
+  --bg-card: #1f2937;
+  --accent-blue: #2563eb;
+  --text-main: #f3f4f6;
+  --text-muted: #9ca3af;
+  --border-color: #374151;
 }
 
-.App-logo {
-  height: 40vmin;
-  pointer-events: none;
+body {
+  margin: 0;
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  background-color: var(--bg-dark);
+  color: var(--text-main);
 }
 
-@media (prefers-reduced-motion: no-preference) {
-  .App-logo {
-    animation: App-logo-spin infinite 20s linear;
-  }
-}
-
-.App-header {
-  background-color: #282c34;
-  min-height: 100vh;
+.dashboard-container {
   display: flex;
-  flex-direction: column;
+  min-height: 100vh;
+}
+
+/* Sidebar */
+.sidebar {
+  width: 260px;
+  background-color: var(--bg-sidebar);
+  border-right: 1px solid var(--border-color);
+  padding: 2rem 1rem;
+}
+.logo {
+  font-size: 1.5rem;
+  font-weight: bold;
+  color: var(--text-main);
+  margin-bottom: 2.5rem;
+  padding-left: 0.5rem;
+}
+.menu a {
+  display: block;
+  color: var(--text-muted);
+  text-decoration: none;
+  padding: 0.8rem 1rem;
+  border-radius: 6px;
+  margin-bottom: 0.5rem;
+  font-size: 0.95rem;
+}
+.menu a.active, .menu a:hover {
+  background-color: var(--bg-card);
+  color: var(--text-main);
+}
+
+/* Main Content */
+.main-content {
+  flex: 1;
+  padding: 2rem;
+  overflow-y: auto;
+}
+.main-header h2 {
+  margin-top: 0;
+  display: flex;
   align-items: center;
-  justify-content: center;
-  font-size: calc(10px + 2vmin);
+  gap: 10px;
+}
+.badge {
+  background: #065f46;
+  color: #34d399;
+  font-size: 0.75rem;
+  padding: 4px 8px;
+  border-radius: 12px;
+}
+
+/* Botón Subir */
+.upload-section {
+  margin: 2rem 0;
+}
+.custom-upload {
+  background-color: var(--accent-blue);
   color: white;
+  padding: 12px 24px;
+  border-radius: 6px;
+  cursor: pointer;
+  font-weight: 600;
+  display: inline-block;
+  transition: opacity 0.2s;
 }
+.custom-upload:hover { opacity: 0.9; }
+.loader { color: #f59e0b; margin-top: 10px; }
 
-.App-link {
-  color: #61dafb;
+/* Tarjetas */
+.cards-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 1.5rem;
+  margin-bottom: 2rem;
 }
+.card {
+  background-color: var(--bg-card);
+  padding: 1.5rem;
+  border-radius: 8px;
+  border: 1px solid var(--border-color);
+}
+.card h3 { margin: 0 0 0.5rem 0; font-size: 0.85rem; color: var(--text-muted); text-transform: uppercase; }
+.card-value { margin: 0; font-size: 1.25rem; font-weight: bold; color: var(--text-main); word-break: break-all; }
 
-@keyframes App-logo-spin {
-  from {
-    transform: rotate(0deg);
-  }
-  to {
-    transform: rotate(360deg);
-  }
+/* Tabla */
+.table-container {
+  background-color: var(--bg-card);
+  border-radius: 8px;
+  border: 1px solid var(--border-color);
+  padding: 1.5rem;
+}
+.responsive-table { overflow-x: auto; }
+table { width: 100%; border-collapse: collapse; text-align: left; }
+th, td { padding: 12px; border-bottom: 1px solid var(--border-color); font-size: 0.9rem; }
+th { background-color: rgba(0,0,0,0.2); color: var(--text-muted); }
+.metric-name { font-weight: bold; color: #60a5fa; text-transform: capitalize; }
+.error-box { background: #991b1b; color: #fca5a5; padding: 15px; border-radius: 6px; margin-top: 2rem; }
+
+@media (max-width: 768px) {
+  .dashboard-container { flex-direction: column; }
+  .sidebar { width: auto; padding: 1rem; }
 }

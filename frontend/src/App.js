@@ -27,20 +27,82 @@ function App() {
   };
 
   return (
-    <div className="App">
-      <header className="App-header">
-        <h1>📊 Plataforma de Análisis Seguro</h1>
-        <p>Sube tu archivo CSV o JSON para analizarlo</p>
-        <input type="file" accept=".csv,.json" onChange={subirArchivo} />
-        {cargando && <p>⏳ Analizando...</p>}
-        {resultado && (
-          <div style={{textAlign:'left', marginTop:'20px'}}>
-            <p>✅ Archivo: {resultado.archivo}</p>
-            <p>📋 Filas: {resultado.filas}</p>
-            <p>📌 Columnas: {resultado.columnas?.join(', ')}</p>
+    <div className="dashboard-container">
+      {/* Panel Lateral */}
+      <aside className="sidebar">
+        <div className="logo">DataML Platform</div>
+        <nav className="menu">
+          <a href="#ingesta" className="active">📊 Flujos de Ingesta</a>
+          <a href="#jupyter">📓 Entornos Jupyter</a>
+          <a href="#modelos">🧠 Modelos Predictivos</a>
+          <a href="#custodia">🛡️ Custodia de Datos</a>
+        </nav>
+      </aside>
+
+      {/* Contenido Principal */}
+      <main className="main-content">
+        <header className="main-header">
+          <h2>Flujos de Ingesta <span className="badge">En tiempo real</span></h2>
+        </header>
+
+        <section className="upload-section">
+          <label className="custom-upload">
+            <span>📁 Seleccionar archivo (CSV o JSON)</span>
+            <input type="file" accept=".csv,.json" onChange={subirArchivo} hidden />
+          </label>
+          {cargando && <div className="loader">⏳ Analizando data con Pandas...</div>}
+        </section>
+
+        {resultado && !resultado.error && (
+          <div className="results-fade">
+            {/* Tarjetas de Resumen */}
+            <div className="cards-grid">
+              <div className="card">
+                <h3>Archivo Procesado</h3>
+                <p className="card-value">{resultado.archivo}</p>
+              </div>
+              <div className="card">
+                <h3>Total Registros</h3>
+                <p className="card-value">{resultado.filas}</p>
+              </div>
+              <div className="card">
+                <h3>Dimensiones</h3>
+                <p className="card-value">{resultado.columnas?.length} Columnas</p>
+              </div>
+            </div>
+
+            {/* Tabla de Estadísticas de Pandas */}
+            <div className="table-container">
+              <h3>Vista de Base de Datos - Estadísticas Descriptivas</h3>
+              <div className="responsive-table">
+                <table>
+                  <thead>
+                    <tr>
+                      <th>Métrica (Pandas)</th>
+                      {resultado.columnas?.map(col => <th key={col}>{col}</th>)}
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {resultado.estadisticas && Object.keys(resultado.estadisticas).map(metric => (
+                      <tr key={metric}>
+                        <td className="metric-name">{metric}</td>
+                        {resultado.columnas?.map(col => {
+                          const val = resultado.estadisticas[metric]?.[col];
+                          return <td key={col}>{typeof val === 'number' ? val.toFixed(2) : val ?? '-'}</td>;
+                        })}
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            </div>
           </div>
         )}
-      </header>
+
+        {resultado?.error && (
+          <div className="error-box">❌ Error: {resultado.error}</div>
+        )}
+      </main>
     </div>
   );
 }
