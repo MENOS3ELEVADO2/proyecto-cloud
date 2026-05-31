@@ -1,0 +1,31 @@
+---
+- name: Configurar nodo on-premise
+  hosts: all
+  become: true
+
+  tasks:
+    - name: Actualizar paquetes
+      apt:
+        update_cache: yes
+
+    - name: Instalar Docker
+      apt:
+        name: docker.io
+        state: present
+
+    - name: Instalar Docker Compose
+      apt:
+        name: docker-compose
+        state: present
+
+    - name: Iniciar servicio Docker
+      service:
+        name: docker
+        state: started
+        enabled: true
+
+    - name: Agregar usuario al grupo docker
+      user:
+        name: "{{ ansible_user }}"
+        groups: docker
+        append: yes
