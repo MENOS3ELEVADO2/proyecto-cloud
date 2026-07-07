@@ -1,0 +1,155 @@
+name: Pipeline DevSecOps
+
+on:
+  push:
+    branches: [ main, master ]
+  pull_request:
+    branches: [ main, master ]
+
+jobs:
+
+  # ─────────────────────────────────────────
+  # 1. SAST — Análisis estático del código
+  # ─────────────────────────────────────────
+  sast:
+    name: SAST - Bandit (Python) + ESLint (JS)
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout código
+        uses: actions/checkout@v4
+
+      - name: Instalar Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Instalar Bandit (SAST Python)
+        run: pip install bandit
+
+      - name: Ejecutar Bandit en el backend
+        run: bandit -r backend/src/ -f json -o bandit-report.json || true
+
+      - name: Mostrar reporte Bandit
+        run: cat bandit-report.json
+
+      - name: Subir reporte Bandit
+        uses: actions/upload-artifact@v4
+        with:
+          name: bandit-sast-report
+          path: bandit-report.json
+
+      - name: Instalar Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Instalar dependencias frontend
+        run: cd frontend && npm install
+
+      - name: Ejecutar ESLint (SAST JavaScript)
+        run: cd frontend && npx eslint src/ --format json --output-file ../eslint-report.json || true
+
+      - name: Subir reporte ESLint
+        uses: actions/upload-artifact@v4
+        with:
+          name: eslint-sast-report
+          path: eslint-report.json
+
+  # ─────────────────────────────────────────
+  # 2. SCA — Análisis de dependencias
+  # ─────────────────────────────────────────
+  sca:
+    name: SCA - Safety (Python) + Audit (JS)
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout código
+        uses: actions/checkout@v4
+
+      - name: Instalar Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Instalar Safety (SCA Python)
+        run: pip install safety
+
+      - name: Escanear dependencias Python
+        run: safety check -r backend/requirements.txt --json > safety-report.json || true
+
+      - name: Mostrar reporte Safety
+        run: cat safety-report.json
+
+      - name: Subir reporte Safety
+        uses: actions/upload-artifact@v4
+        with:
+          name: safety-sca-report
+          path: safety-report.json
+
+      - name: Instalar Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Instalar dependencias frontend
+        run: cd frontend && npm install
+
+      - name: Escanear dependencias JavaScript
+        run: cd frontend && npm audit --json > ../npm-audit-report.json || true
+
+      - name: Subir reporte npm audit
+        uses: actions/upload-artifact@v4
+        with:
+          name: npm-audit-sca-report
+          path: npm-audit-report.json
+
+  # ─────────────────────────────────────────
+  # 3. Secret Scanning — Detección de secretos
+  # ─────────────────────────────────────────
+  secret-scanning:
+    name: Secret Scanning - Gitleaks
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout código
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Ejecutar Gitleaks
+        uses: gitleaks/gitleaks-action@v2
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GITLEAKS_LICENSE: ${{ secrets.GITLEAKS_LICENSE }}
+
+  # ─────────────────────────────────────────
+  # 4. IaC Scanning — Escaneo de Terraform
+  # ─────────────────────────────────────────
+  iac-scanning:
+    name: IaC Scanning - Checkov (Terraform)
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout código
+        uses: actions/checkout@v4
+
+      - name: Instalar Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Instalar Checkov
+        run: pip install checkov
+
+      - name: Escanear Terraform con Checkov
+        run: |
+          checkov -d terraform/aws/ \
+            --framework terraform \
+            --output json \
+            --output-file checkov-report.json || true
+
+      - name: Mostrar reporte Checkov
+        run: cat checkov-report.json
+
+      - name: Subir reporte Checkov
+        uses: actions/upload-artifact@v4
+        with:
+          name: checkov-iac-report
+          path: checkov-report.json
