@@ -142,9 +142,7 @@ jobs:
         run: |
           checkov -d terraform/aws/ \
             --framework terraform \
-            --output json \
-            --output-file checkov-report.json || true
-
+            --output json > checkov-report.json || true
       - name: Mostrar reporte Checkov
         run: cat checkov-report.json
 
