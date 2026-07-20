@@ -1,6 +1,6 @@
 # Plataforma de Ingesta, Análisis y Custodia Segura de Datos
 
-Plataforma cloud-native desplegada en AWS con arquitectura multicloud, alta disponibilidad y pipeline DevSecOps automatizado.
+Plataforma cloud-native desplegada en AWS con arquitectura multicloud, alta disponibilidad y pipeline DevSecOps automatizado. ñam ñam ñam
 
 ## Arquitectura
 
