@@ -1,16 +1,30 @@
 version: '3.8'
 
 services:
-  backend:
-    build: ./backend
-    ports:
-      - "8000:8000"
-    container_name: backend
-
   frontend:
     build: ./frontend
     ports:
       - "80:80"
-    container_name: frontend
     depends_on:
       - backend
+
+  backend:
+    build: ./backend
+    ports:
+      - "8000:8000"
+    environment:
+      - DB_HOST=db
+      - DB_NAME=proyectocloud
+      - DB_USER=postgres
+      - DB_PASSWORD=CambiaEstaClave123!
+    depends_on:
+      - db
+
+  db:
+    image: postgres:15
+    environment:
+      - POSTGRES_DB=proyectocloud
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=CambiaEstaClave123!
+    ports:
+      - "5432:5432"
